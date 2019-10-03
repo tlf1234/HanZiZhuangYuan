@@ -26,9 +26,8 @@ public class HanZiElement : MonoBehaviour {
 
 	protected AudioSource m_audio;
     public AudioClip Han_Zi_Create;
-    //public AudioClip Dan_Ji;
-    //public AudioClip He_Cheng;
-    
+
+	public int KuangHaveElemType;  //每个汉字框中含有的元素类别：0表示没有；1表示汉字；2表示金笔        		。 暂时可以不用，直接用对象的名字即可
 	
    // public AnimationCurve animcurve;
     //int timerstart = 0;
@@ -145,17 +144,15 @@ public class HanZiElement : MonoBehaviour {
 
 
 
-
-
     //后面动画要重新设计,可以根据直接每一帧的变换来实现
     public void Move(Vector3 StartPos, Vector3 EndPos)  //  选择的对象进行移动
     {
      	SetParent();
-		print("###########09  EndPos.y="+ EndPos.y);
+		
         AnimationClip ret = new AnimationClip();
-        ret.SetCurve("", typeof(Transform), "localPosition.x", AnimationCurve.Linear(0, StartPos.x, 1f, EndPos.x));
-        ret.SetCurve("", typeof(Transform), "localPosition.y", AnimationCurve.Linear(0, StartPos.y, 1f, EndPos.y));
-		ret.SetCurve("", typeof(Transform), "localPosition.z", AnimationCurve.Linear(0, StartPos.z, 1f, EndPos.z));  //这里面才是决定移动的时间。
+        ret.SetCurve("", typeof(Transform), "localPosition.x", AnimationCurve.Linear(0, StartPos.x, 1.2f, EndPos.x)); //注意如果这个时间过小会导致汉字元素无法运动到指定位置
+        ret.SetCurve("", typeof(Transform), "localPosition.y", AnimationCurve.Linear(0, StartPos.y, 1.2f, EndPos.y));
+		ret.SetCurve("", typeof(Transform), "localPosition.z", AnimationCurve.Linear(0, StartPos.z, 1.2f, EndPos.z));  //这里面才是决定移动的时间。
 
        
        /* ret.SetCurve("", typeof(Transform), "localPosition.x", animcurve);
@@ -164,7 +161,7 @@ public class HanZiElement : MonoBehaviour {
         this.gameObject.animation.AddClip(ret,"Move");
         if (this.gameObject.animation)
         {
-            this.gameObject.animation.Blend("Move", 1f);
+            this.gameObject.animation.Blend("Move", 1.2f);
         }
 
         //yield return new WaitForSeconds(1.2f);

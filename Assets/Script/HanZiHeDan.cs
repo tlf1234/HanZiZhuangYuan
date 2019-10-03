@@ -18,6 +18,13 @@ struct SELECT_HAN_ZI_KUANG_STRUCT{
 
 }
 
+struct HAN_ZI_KAUNG_COUNT_STRUCT{
+	public Transform HanZiKaungCount;
+	public int Hang;
+	public int Lie;
+
+}
+
 public  class HanZiHeDan : MonoBehaviour {
      public static List<Han_Zi_Ele_Struct> HanZiElementstrcs = new List<Han_Zi_Ele_Struct>(); //这个后面改为数据更好
      
@@ -76,7 +83,18 @@ public  class HanZiHeDan : MonoBehaviour {
     public Transform HanZiKuangCount_3;
     public Transform HanZiKuangCount_4;
 
+
+
 	Transform[] HanZiKuangCounts=new Transform[5];
+
+	public int StartCrateJinBiSwitch=0;
+	public int UpDateCrateJinBinSwitch=0;
+    public Transform JinBi;
+	int JinBiNum=0;
+
+
+	private Transform ChuiZiKuang;
+	private Transform LuckyHanZiKuang;
 	 
 	void Awake(){
 		m_audio = this.gameObject.GetComponent<AudioSource>();
@@ -88,7 +106,8 @@ public  class HanZiHeDan : MonoBehaviour {
       //  HanZiKuangCounts[3].CountValue = 3;
         HanZiKuangCounts[4] = HanZiKuangCount_4;
        // HanZiKuangCounts[4].CountValue = 4;
-
+		
+	   
 	}
 	 
 	void Start () {
@@ -104,8 +123,6 @@ public  class HanZiHeDan : MonoBehaviour {
                 HanZiStrc.FiveNum = ElementsNumArr.ElementNumArr[i, 4];
                 HanZiStrc.CompNum = ElementsNumArr.ElementNumArr[i, 5];
 
-                //CompCount后面再补充
-                // print("#######" + HanZi.CompNum);
                 HanZiStrc.image = (Texture2D)Resources.Load(Convert.ToString(HanZiStrc.CompNum));
                 HanZiElementstrcs.Add(HanZiStrc);
 
@@ -134,12 +151,19 @@ public  class HanZiHeDan : MonoBehaviour {
                     // print("#######011" + transtemp.transform.position);
                     HanZiKuangs[i, j].HanZiKuangObject = transtemp;
                     HanZiKuangs[i, j].rowindex = i;
-                    HanZiKuangs[i, j].cloindex = j;                               //数组和下面的对象都赋相应的值
-                    transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.HanZiKuangObject = transtemp;
-                    transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.rowindex = i;
+                    HanZiKuangs[i, j].cloindex = j;
+					HanZiKuangs[i, j].IsCount=0;
+					HanZiKuangs[i, j].IsCountDelete=0;
+					HanZiKuangs[i, j].IsUsed =0;
+					//HanZiKuangs[i, j].KuangHaveElemType=0;
+
+					//数组和下面的对象都赋相应的值
+                    transtemp.GetComponent<HanZiKuang>().M_HanZiKuang = HanZiKuangs[i, j];
+                    /*transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.rowindex = i;
                     transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.cloindex = j;
 					transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.IsCount=0;
 					transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.IsCountDelete=0;
+					transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.KuangHaveEleType=0;*/
                     transtemp.name = "HanZiKuang" + Convert.ToString(i) + Convert.ToString(j);  //更新生成的文字框的名字
 
 
@@ -164,13 +188,14 @@ public  class HanZiHeDan : MonoBehaviour {
                     // print("#######011" + transtemp.transform.position);
                     HanZiKuangs[i, j].HanZiKuangObject = transtemp;
                     HanZiKuangs[i, j].rowindex = i;
-                    HanZiKuangs[i, j].cloindex = j;                               //数组和下面的对象都赋相应的值
-                    transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.HanZiKuangObject = transtemp;
-                    transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.rowindex = i;
-                    transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.cloindex = j;
+                    HanZiKuangs[i, j].cloindex = j;                               
+					HanZiKuangs[i, j].IsCount=0;
+					HanZiKuangs[i, j].IsCountDelete=0;
+					HanZiKuangs[i, j].IsUsed =0;
+					//HanZiKuangs[i, j].KuangHaveElemType=0;
+                    transtemp.GetComponent<HanZiKuang>().M_HanZiKuang = HanZiKuangs[i, j];
                     transtemp.name = "HanZiKuang" + Convert.ToString(i) + Convert.ToString(j);  //更新生成的文字框的名字
 
-                    //print("#######011" + HanZiKuangs[i, j].transform.position);
                 }
 
 
@@ -193,16 +218,15 @@ public  class HanZiHeDan : MonoBehaviour {
                 //加载文字框预制件
                 Transform TransHanZiKuang = (Transform)Instantiate(TrHanZiKaung_lan, new Vector2(2.42f * j, -2.4f * i), Quaternion.Euler(0f, 0f, 0f));
                 GameObject transtemp = TransHanZiKuang.gameObject;   /*GameObject.Find("WenZiKuang" + i + j);*/
-                // print("#######011" + transtemp.transform.position);
+				
                 HanZiKuangs[i, j].HanZiKuangObject = transtemp;
                 HanZiKuangs[i, j].rowindex = i;
-                HanZiKuangs[i, j].cloindex = j;                               //数组和下面的对象都赋相应的值
-                transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.HanZiKuangObject = transtemp;
-                transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.rowindex = i;
-                transtemp.GetComponent<HanZiKuang>().M_HanZiKuang.cloindex = j;
+                HanZiKuangs[i, j].cloindex = j;
+				
+                transtemp.GetComponent<HanZiKuang>().M_HanZiKuang = HanZiKuangs[i, j];
                 transtemp.name = "HanZiKuang" + Convert.ToString(i) + Convert.ToString(j);  //更新生成的文字框的名字
 
-                //print("#######011" + HanZiKuangs[i, j].transform.position);
+
             }
         }
 
@@ -235,7 +259,7 @@ public  class HanZiHeDan : MonoBehaviour {
 		Invoke("CreateHanZiCount", 1.8f);     //随机生成汉字count
 
 		
-        Invoke("CreatCompriseHanZi", 1.8f);    //把这个时延和move中的携程时延研究一下。
+        //Invoke("CreatCompriseHanZi", 1.8f);    //把这个时延和move中的携程时延研究一下。
         StartCoroutine(CreatCompriseHanZi());  
         for (int i = 0; i < 9; i++)
         {
@@ -266,6 +290,44 @@ public  class HanZiHeDan : MonoBehaviour {
         Hua_xian_DaoHengUp = GameObject.FindGameObjectWithTag("huaxian1");
         Hua_xian_DaoHengDown = GameObject.FindGameObjectWithTag("huaxian2");
 
+        GameObject ChuiZiObj=GameObject.Find("ChuiZiKuang");
+        ChuiZiKuang = ChuiZiObj.transform;
+        GameObject LuckyHanZiObj = GameObject.Find("han_zi_kuang_hong");
+        LuckyHanZiKuang = LuckyHanZiObj.transform;
+
+        //初始化时产生幸运汉字元素
+        int RandNumTemp;
+        do{
+             RandNumTemp = UnityEngine.Random.Range(0, 222);//注意list通过下标来实现，所以下标从0开始有对应问题
+        }
+         while (HanZiElementstrcs[RandNumTemp].CompNum == 155 || HanZiElementstrcs[RandNumTemp].CompNum == 157 || HanZiElementstrcs[RandNumTemp].CompNum == 163 || HanZiElementstrcs[RandNumTemp].CompNum == 173 || HanZiElementstrcs[RandNumTemp].CompNum == 174
+	                || HanZiElementstrcs[RandNumTemp].CompNum == 175 || HanZiElementstrcs[RandNumTemp].CompNum == 176 || HanZiElementstrcs[RandNumTemp].CompNum == 178 || HanZiElementstrcs[RandNumTemp].CompNum == 179 || HanZiElementstrcs[RandNumTemp].CompNum == 180
+	                || HanZiElementstrcs[RandNumTemp].CompNum == 183 || HanZiElementstrcs[RandNumTemp].CompNum == 184 || HanZiElementstrcs[RandNumTemp].CompNum == 185 || HanZiElementstrcs[RandNumTemp].CompNum == 187 || HanZiElementstrcs[RandNumTemp].CompNum == 188
+	                || HanZiElementstrcs[RandNumTemp].CompNum == 189 || HanZiElementstrcs[RandNumTemp].CompNum == 190 || HanZiElementstrcs[RandNumTemp].CompNum == 191 || HanZiElementstrcs[RandNumTemp].CompNum == 193 || HanZiElementstrcs[RandNumTemp].CompNum == 195
+	                || HanZiElementstrcs[RandNumTemp].CompNum == 197 || HanZiElementstrcs[RandNumTemp].CompNum == 199 || HanZiElementstrcs[RandNumTemp].CompNum == 200 || HanZiElementstrcs[RandNumTemp].CompNum == 201 || HanZiElementstrcs[RandNumTemp].CompNum == 202
+	                || HanZiElementstrcs[RandNumTemp].CompNum == 204 || HanZiElementstrcs[RandNumTemp].CompNum == 205 || HanZiElementstrcs[RandNumTemp].CompNum == 206 || HanZiElementstrcs[RandNumTemp].CompNum == 207 || HanZiElementstrcs[RandNumTemp].CompNum == 208
+	                || HanZiElementstrcs[RandNumTemp].CompNum == 212 || HanZiElementstrcs[RandNumTemp].CompNum == 214 || HanZiElementstrcs[RandNumTemp].CompNum == 216 || HanZiElementstrcs[RandNumTemp].CompNum == 217 || HanZiElementstrcs[RandNumTemp].CompNum == 218
+	                || HanZiElementstrcs[RandNumTemp].CompNum == 219 || HanZiElementstrcs[RandNumTemp].CompNum == 220 || HanZiElementstrcs[RandNumTemp].CompNum == 222);	
+
+		
+		Transform trgo = (Transform)Instantiate(HanZiElement, new Vector3(9.9f , -24f ,-1), Quaternion.Euler(0f, 0f, 0f));
+		//trgo.transform.localScale = scal;
+        GameObject LuckyHanZi = LuckyHanZiKuang.GetChild(0).gameObject;
+
+        GameObject go = trgo.gameObject;
+        if (go != null)
+        {
+            go.GetComponent<HanZiElement>().m_HanZiElementstrc = HanZiElementstrcs[RandNumTemp];   //注意list通过下标来实现//把找到符合调价的汉字赋值给了汉字元素类的对应变量
+
+            go.GetComponent<HanZiElement>().CreateElement(new Vector2(0.5f, 0.5f));
+            go.GetComponent<HanZiElement>().PlaySound_HanZi_Create();                   //播放汉字元素生成音效
+
+            Destroy(LuckyHanZi);
+            //LuckyHanZi.transform.GetComponent<SpriteRenderer>().sprite = go.transform.GetComponent<SpriteRenderer>().sprite;
+            go.transform.SetParent(LuckyHanZiKuang);
+            Vector3 LocalScal = new Vector3(1f, 1f, 1f);
+            go.transform.localScale = LocalScal;
+        }
 	}
 
     public IEnumerator CreatHanZiElemAndFallUp(int lie ) {   //上部分创建文字并下落
@@ -273,23 +335,57 @@ public  class HanZiHeDan : MonoBehaviour {
         int fallrow01 = 0;
 		int fallrow02 = 0;
         int RandNumTemp = 0;
-       // int RandNum = 0;
-        //
 
 
         //下落有问题，需要优化一下。
 		ElementVerticalFall(lie,0, ref fallrow01);  //这个计算是从0开始计算才可以。 //先判断要生成几个文字元素
-        //print("!!!!!!!!!!!!!!!! 62 HanZiKuangs" + "[**" + "]," + "[" + lie + "]=" + fallrow01);
+        print("BBBBBBBBBB 200 fallrow01=0" +fallrow01);
 		if(fallrow01==0){
- //           print("the fallow num of lie is " + fallrow01);
+
+			for(int i=0;i<6;i++){
+
+				print("BBBBBBBBBB 203 HanZiKuangs[" +i+","+lie+"]="+ HanZiKuangs[i, lie].IsUsed);
+			}
             yield return new WaitForSeconds(0);                                 //没有消除的元素就直接return
 		}else{
-			for(int i=0;i<fallrow01+1;i++){
-				ElementVerticalFall(lie,0, ref fallrow02);  //再判断每个元素需要下落到的位置
+			for(int i=0;i<fallrow01;i++){
+				
+				ElementVerticalFall(lie,0, ref fallrow02);  //再判断每个元素需要下落到的位置。判断下落位置时要减1
+				fallrow02=fallrow02-1;
+				print("BBBBBBBBBB 204 fallrow02="+ fallrow02);
+				if(JinBiNum <3){                           //判断是否生成金笔,先共用HanZiElement脚本
+					int RandNumJinBi=UnityEngine.Random.Range(0, 4);
+					if((RandNumJinBi==1)&&(i==fallrow01-1)){  // 能生成金笔的情况下1/5的概率生成金笔。并且生成金笔时在同一列的最上面一个汉字框中生成。
+						print("BBBBBBBBBB 201 i=!" +i);
+				        Transform trgojinbi = (Transform)Instantiate(JinBi, new Vector2(HanZiKuangs[0, lie].HanZiKuangObject.transform.position.x , HanZiKuangs[0, lie].HanZiKuangObject.transform.position.y ), Quaternion.Euler(0f, 0f, 0f));
 
-	               
-	        	do{
-					RandNumTemp = UnityEngine.Random.Range(0, 222);//注意list通过下标来实现，所以下标从0开始有对应问题
+				        GameObject gojinbi = trgojinbi.gameObject;
+
+			            if (gojinbi != null) {
+			                gojinbi.GetComponent<HanZiElement>().PlaySound_HanZi_Create();                   //播放汉字元素生成音效
+
+
+			                //关键是如何获得相应的文字框
+			                gojinbi.GetComponent<HanZiElement>().m_parent = HanZiKuangs[fallrow02, lie].HanZiKuangObject.transform;   //把汉字框作为父类赋值给相应的汉字元素
+                            gojinbi.name = "JinBi";
+			               
+							Vector3 StartPosition = new Vector3(0, fallrow02*1.6f, -1);
+							Vector3 EndPosition = new Vector3(0,0, -1);
+			                gojinbi.GetComponent<HanZiElement>().Move(StartPosition, EndPosition);
+							gojinbi.GetComponent<HanZiElement>().KuangHaveElemType=2;
+							
+							HanZiKuangs[fallrow02, lie].IsUsed = 1;
+							JinBiNum++;
+							break;
+							
+						}
+					}
+
+				}    
+				do{                    //生成汉字元素
+					
+				
+				RandNumTemp = UnityEngine.Random.Range(0, 222);//注意list通过下标来实现，所以下标从0开始有对应问题
 
 	            } while (HanZiElementstrcs[RandNumTemp].CompNum == 155 || HanZiElementstrcs[RandNumTemp].CompNum == 157 || HanZiElementstrcs[RandNumTemp].CompNum == 163 || HanZiElementstrcs[RandNumTemp].CompNum == 173 || HanZiElementstrcs[RandNumTemp].CompNum == 174
 	                || HanZiElementstrcs[RandNumTemp].CompNum == 175 || HanZiElementstrcs[RandNumTemp].CompNum == 176 || HanZiElementstrcs[RandNumTemp].CompNum == 178 || HanZiElementstrcs[RandNumTemp].CompNum == 179 || HanZiElementstrcs[RandNumTemp].CompNum == 180
@@ -301,43 +397,40 @@ public  class HanZiHeDan : MonoBehaviour {
 	                || HanZiElementstrcs[RandNumTemp].CompNum == 219 || HanZiElementstrcs[RandNumTemp].CompNum == 220 || HanZiElementstrcs[RandNumTemp].CompNum == 222);	
 
 		        //把下面的创建过程放到element中
+		        print("BBBBBBBBBB 202 HanZiElementstrcs[RandNumTemp].CompNum=" +HanZiElementstrcs[RandNumTemp].CompNum);
 	            yield return new WaitForSeconds(0.1f);
 		        Vector3 scal = new Vector3(1.3f, 1.3f, 1f);
 		        Transform trgo = (Transform)Instantiate(HanZiElement, new Vector2(HanZiKuangs[0, lie].HanZiKuangObject.transform.position.x , HanZiKuangs[0, lie].HanZiKuangObject.transform.position.y ), Quaternion.Euler(0f, 0f, 0f));
-		        // HanZiElement.CreateElement(hanzielement,new Vector2(1.0f + i, 1.0f + i));
 		        trgo.transform.localScale = scal;
 		        GameObject go = trgo.gameObject;
 
 	            if (go != null) {
-	                
-					//print("@@@@@@@@@@@@@ 101 go is not null!");
-	                //go=HanZiElement.gameObject;
+
 	                go.GetComponent<HanZiElement>().m_HanZiElementstrc = HanZiElementstrcs[RandNumTemp];   //注意list通过下标来实现//把找到符合调价的汉字赋值给了汉字元素类的对应变量
-	                //print("#######016 HanZiElementstrcs[RandNumTemp].CompNum=" + HanZiElementstrcs[RandNumTemp].CompNum);
+
 	                go.GetComponent<HanZiElement>().CreateElement(new Vector2(0.5f, 0.5f));
 	                go.GetComponent<HanZiElement>().PlaySound_HanZi_Create();                   //播放汉字元素生成音效
-	                // ElementVerticalFall(lie,0, ref fallrow);  //这个计算是从0开始计算才可以。
+
 
 	                //关键是如何获得相应的文字框
 	                go.GetComponent<HanZiElement>().m_parent = HanZiKuangs[fallrow02, lie].HanZiKuangObject.transform;   //把汉字框作为父类赋值给相应的汉字元素
-	                //Vector3 StartPosition = new Vector3(HanZiKuangs[0, lie].HanZiKuangObject.transform.position.x, HanZiKuangs[0, lie].HanZiKuangObject.transform.position.y, -1);  //把文字元素放置到文字框上
-	                //Vector3 EndPosition = new Vector3(HanZiKuangs[fallrow02, lie].HanZiKuangObject.transform.position.x, HanZiKuangs[fallrow02, lie].HanZiKuangObject.transform.position.y, -1);
-	                //go.GetComponent<HanZiElement>().Move(StartPosition, EndPosition);  //传两个汉字框的函数进去即可,该方法有效，后面可以把动画特效做好点
+	                go.GetComponent<HanZiElement>().KuangHaveElemType=1;
 					Vector3 StartPosition = new Vector3(0, fallrow02*1.6f, -1);
 					Vector3 EndPosition = new Vector3(0,0, -1);
 	                go.GetComponent<HanZiElement>().Move(StartPosition, EndPosition);
-					//StartCoroutine(go.GetComponent<HanZiElement>().Move(StartPosition, EndPosition));
-	                HanZiKuangs[fallrow02, lie].IsUsed = 1;
-					
-			
-	         
-	            }
-		        
-			}
 
+	                HanZiKuangs[fallrow02, lie].IsUsed = 1;
+					//HanZiKuangs[fallrow02, lie].KuangHaveElemType=1;
+
+				}
+
+	       }
+		        
 		}
+
+	}
     
-    }
+    
 
     public IEnumerator CreatCompriseHanZi() {   //创建下半部分能够生成匹配的汉字
         
@@ -360,7 +453,7 @@ public  class HanZiHeDan : MonoBehaviour {
             PosNumArr[i].flag = 0;
 
         }
-		yield return new WaitForSeconds(1.5f);
+		yield return new WaitForSeconds(1.8f);
         do
         {
         	
@@ -525,14 +618,26 @@ public  class HanZiHeDan : MonoBehaviour {
         if(HanZiKuangs[row, clo].HanZiKuangObject.transform.childCount!=0){
 			for (int i = 0; i <  HanZiKuangs[row, clo].HanZiKuangObject.transform.childCount; i++) {  
 				if(HanZiKuangs[row, clo].IsUsed==1){       //这个条件要不要都可以
-					GameObject TempGameObject = HanZiKuangs[row, clo].HanZiKuangObject.transform.GetChild(i).gameObject;
-	        	 	Destroy(TempGameObject);
+					//GameObject TempGameObject = HanZiKuangs[row, clo].HanZiKuangObject.transform.GetChild(i).gameObject; //这个有点奇怪，赋值的对象竟然也能删除目标对象
+
+                    if (HanZiKuangs[row, clo].HanZiKuangObject.transform.GetChild(i).gameObject.transform.GetComponent<HanZiElement>().KuangHaveElemType == 2) {    //对于金笔对象每删除一个需要减去一个数目
+                        JinBiNum--;
+                    }
+                    HanZiKuangs[row, clo].HanZiKuangObject.transform.GetChild(i).gameObject.transform.GetComponent<HanZiElement>().KuangHaveElemType = 0;
+	        	 	Destroy(HanZiKuangs[row, clo].HanZiKuangObject.transform.GetChild(i).gameObject);
 				}				 
 			}
 		}
         if(HanZiKuangs[row, clo].IsCount==0){
 			HanZiKuangs[row, clo].IsUsed = 0;
 			HanZiKuangs[row, clo].IsCountDelete=0;
+			//for(int i=0;i<5;i++){                  //把对应汉字框中的count对象也删除
+			//	if(HanZiKuangCounts[i])
+			//HanZiKuangs[row, clo].HanZiCountObjtct.SetActive(false);
+
+			//}
+			
+			
 		}  
     }
 	
@@ -586,17 +691,75 @@ public  class HanZiHeDan : MonoBehaviour {
            {
                   
                 return;
-           }
-         
-           StartHanZiKuangRow = hit.collider.gameObject.GetComponent<HanZiKuang>().M_HanZiKuang.rowindex;
-           StartHanZiKuangCol = hit.collider.gameObject.GetComponent<HanZiKuang>().M_HanZiKuang.cloindex;
-           //print("******************* 19 StartPosition=" + StartHanZiKuangRow);
-           hasdown = true;
+           }else{
+		   		if(hit.collider.gameObject.tag=="HanZiKuang"&&ChuiZiKuang.GetComponent<ChuiZiElement>().ChuiZiIsSelect!=1){      //确保点击的对象是汉字框，防止与后面的锤子对象出现干涉
+					
+				StartHanZiKuangRow = hit.collider.gameObject.GetComponent<HanZiKuang>().M_HanZiKuang.rowindex;
+           		StartHanZiKuangCol = hit.collider.gameObject.GetComponent<HanZiKuang>().M_HanZiKuang.cloindex;
+           		//print("******************* 19 StartPosition=" + StartHanZiKuangRow);
+           		hasdown = true;
+
+				}
+           	}
         }
 
         if (Input.GetMouseButtonUp(0)){
-            if (hasdown)
-            {
+            if ((hasdown==false) && (ChuiZiKuang.GetComponent<ChuiZiElement>().ChuiZiIsSelect==1))
+            {        //锤子分支
+
+                print("FFFFFFFFFFFFF 01 ChuiZiKuang ");
+                int SelectHnag;
+                int SelectLie;
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+                if (!Physics.Raycast(ray, out hit))
+                {
+                    return;
+                }
+                //为了按汉字框的个数选定文字框
+                print("FFFFFFFFFFFFF 04 hit.collider.gameObject.tag= " + hit.collider.gameObject.tag);
+                if (hit.collider.gameObject.tag == "HanZiKuang") {
+                    SelectHnag = hit.collider.gameObject.GetComponent<HanZiKuang>().M_HanZiKuang.rowindex;
+                    SelectLie = hit.collider.gameObject.GetComponent<HanZiKuang>().M_HanZiKuang.cloindex;
+                    print("FFFFFFFFFFFFF 02 SelectHnag= " + SelectHnag + "SelectLie=" + SelectLie);
+                    if (HanZiKuangs[SelectHnag, SelectLie].IsCountDelete != 0)
+                    {
+                        HanZiKuangs[SelectHnag, SelectLie].IsCount = 0;  //这个看是随时可以锤还是只能最后一次时才能锤
+                        DeleteHanZiElem(SelectHnag, SelectLie);
+                        for (int m = 0; m < 6; m++)
+                        {                //消除下部分所有汉字元素。
+
+                            DeleteHanZiElem(8, m);
+                        }
+
+                        HanZiKuangs[5, SelectLie].HanZiCountObjtct.SetActive(false);
+
+                        ChuiZiKuang.GetComponent<ChuiZiElement>().ChuiZiCancleSelect();
+                        print("FFFFFFFFFFFFF03 SelectHnag= " + SelectHnag + "SelectLie=" + SelectLie);
+                        //下落
+                        HanZiElemFallInUp();
+
+                        //收集金笔
+                        Invoke("DeleteJinBiElement", 1.8f);    //由于这个是新启的一个线程，与下面不一致，所以金笔删除后最上面没有立即生成新的元素，只在下一次生成
+
+                        //上部分重新生成文字
+                        for (int j = 0; j < 6; j++)
+                        {
+                            StartCoroutine(CreatHanZiElemAndFallUp(j));
+                        }
+
+                        Invoke("CreateHanZiCount", 1.8f);     //随机生成汉字count
+
+                        //生成下部分汉字元素
+                        StartCoroutine(CreatCompriseHanZi());
+
+                    }
+                
+                
+                }
+                
+            
+            } else if (hasdown){
                 PlaySound_HanZi_DanJi();       //汉字框被单击时的声效。
                 hasdown = false;
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -790,12 +953,23 @@ public  class HanZiHeDan : MonoBehaviour {
 
                     print("******44 TempIntexUp=" + TempIntexUp);
                     print("******45 TempIntexDown=" + TempIntexDown);
-					
-                  
+
+
+                    Han_Zi_Ele_Struct[] HanZiStrcNews=new Han_Zi_Ele_Struct[6]; //最多查询到6个
+                    for (int i = 0; i < 6; i++) {
+                        HanZiStrcNews[i].FirstNum = 0;
+                        HanZiStrcNews[i].SecondNum = 0;
+                        HanZiStrcNews[i].ThirdNum = 0;
+                        HanZiStrcNews[i].ForthNum = 0;
+                        HanZiStrcNews[i].FiveNum = 0;
+                        HanZiStrcNews[i].image = null;
+                        HanZiStrcNews[i].CompNum = 0;
+                    
+                    }
 
                     if(TempIntexUp==1&&TempIntexDown==1){
-                        
-                       ret=IsCompriseHanZi(TempSelectHanZiUp[0].CompNum,TempSelectHanZiDown[0].CompNum,0,0,0,2,ref HanZiStrcNew); //应该用一个数组来存放所有搜到符合的元素
+
+                        ret = IsCompriseHanZi(TempSelectHanZiUp[0].CompNum, TempSelectHanZiDown[0].CompNum, 0, 0, 0, 2, ref HanZiStrcNews); //应该用一个数组来存放所有搜到符合的元素
                        if (ret ==0) {
                           print("Get Comprise HanZi error! " );
 					   
@@ -804,7 +978,7 @@ public  class HanZiHeDan : MonoBehaviour {
                     }
                     if (TempIntexUp == 2 && TempIntexDown == 1) {
 
-                       ret = IsCompriseHanZi(TempSelectHanZiUp[0].CompNum, TempSelectHanZiUp[1].CompNum, TempSelectHanZiDown[0].CompNum, 0, 0, 3,ref HanZiStrcNew);  
+                        ret = IsCompriseHanZi(TempSelectHanZiUp[0].CompNum, TempSelectHanZiUp[1].CompNum, TempSelectHanZiDown[0].CompNum, 0, 0, 3, ref HanZiStrcNews);  
                        if (ret ==0)
                        {
                            print("Get Comprise HanZi error! ");
@@ -814,7 +988,7 @@ public  class HanZiHeDan : MonoBehaviour {
                     if (TempIntexUp == 1 && TempIntexDown == 2)
                     {
 
-                       ret = IsCompriseHanZi(TempSelectHanZiUp[0].CompNum, TempSelectHanZiDown[0].CompNum, TempSelectHanZiDown[1].CompNum, 0, 0, 3,ref HanZiStrcNew);
+                        ret = IsCompriseHanZi(TempSelectHanZiUp[0].CompNum, TempSelectHanZiDown[0].CompNum, TempSelectHanZiDown[1].CompNum, 0, 0, 3, ref HanZiStrcNews);
                        if (ret ==0)
                        {
                            print("Get Comprise HanZi error! ");
@@ -824,288 +998,351 @@ public  class HanZiHeDan : MonoBehaviour {
                    // print("******43 HanZiStrcNew=" + HanZiStrcNew);
 					
 					//HanZiStrcNew=HanZiElementstrcs[100];                    //定位用
-                  if (HanZiStrcNew.CompNum != 0) {
-
-					//组成文字后也要清楚选定
-				  	for (int i=0;i<9;i++){
-							
-						if(TempSelectHanZiKuangUp[i].hang!=0xff){
-
-	                        tempobject = HanZiKuangs[TempSelectHanZiKuangUp[i].hang, TempSelectHanZiKuangUp[i].lie].HanZiKuangObject;
-							tempobject.transform.localScale=OriginScal;
-	                        temppos=tempobject.transform.position;
-	                        temppos.z=0;
-	                        tempobject.transform.position=temppos;
-
-							
-
-						}
-						if(TempSelectHanZiKuangDown[i].hang!=0xff){
-							//HanZiKuangs[TempSelectHanZiKuangDown[i].hang,TempSelectHanZiKuangDown[i].lie].HanZiKuangObject.transform.position.z=0;
-	                        tempobject = HanZiKuangs[TempSelectHanZiKuangDown[i].hang, TempSelectHanZiKuangDown[i].lie].HanZiKuangObject;
-	                        tempobject.transform.localScale = OriginScal;
-	                        temppos = tempobject.transform.position;
-	                        temppos.z = 0;
-	                        tempobject.transform.position = temppos;
-
-						}
-
-					}
-					//选定的上下文字元素不能组成文字时也要进行清除。
-
-					for (int m = 0; m < 9; m++)
-					{	
-					   TempSelectHanZiUp[m].FirstNum = 0;
-					   TempSelectHanZiUp[m].SecondNum = 0;
-					   TempSelectHanZiUp[m].CompNum = 0;
-					   TempSelectHanZiUp[m].image = null;
-					   TempSelectHanZiUp[m].CompCount = 0;
-
-					   TempSelectHanZiKuangUp[m].hang=0xff;
-					   TempSelectHanZiKuangUp[m].lie=0xff;
-					}
-					UpIsSelect=false;
-
-					for (int m = 0; m < 9; m++)
-					{
-					   TempSelectHanZiDown[m].FirstNum = 0;
-					   TempSelectHanZiDown[m].SecondNum = 0;
-					   TempSelectHanZiDown[m].CompNum = 0;
-					   TempSelectHanZiDown[m].image = null;
-					   TempSelectHanZiDown[m].CompCount = 0;
-
-					   TempSelectHanZiKuangDown[m].hang=0xff;
-					   TempSelectHanZiKuangDown[m].lie=0xff;
-						   
-					}
-					DownIsSelect=false;
-					//上述实现对应的清除操作
-					
-					int IsHanZiDeleteUp=0;
-					
-					for(int i = StartHanZiKuangCloUp; i <= EndHanZiKuangCloUp; i++){  //汉字框有count的情况
-						if(HanZiKuangs[5,i].IsCount !=0){
-							DeleteHanZiElem(5, i);
-                            HanZiKuangCounts[HanZiKuangs[5, i].IsCount].gameObject.SetActive(false);
-						
-							Vector3 scal = new Vector3(1.2f, 1.2f, 1f);
-							//在对应有count的汉字框中生成新的合成的汉字元素
-	                    	Transform trgo = (Transform)Instantiate(HanZiElement, new Vector2(HanZiKuangs[5, i].HanZiKuangObject.transform.position.x , HanZiKuangs[5, i].HanZiKuangObject.transform.position.y), Quaternion.Euler(0f, 0f, 0f));
-
-	                    	trgo.transform.localScale = scal;
-	                    	GameObject go = trgo.gameObject;
-
-	                    	go.GetComponent<HanZiElement>().m_HanZiElementstrc = HanZiStrcNew;               //把找到符合调价的汉字赋值给了汉字元素类的对应变量
-	                    	go.GetComponent<HanZiElement>().CreateElement(new Vector2(0.5f, 0.5f));
-							go.GetComponent<HanZiElement>().m_parent = HanZiKuangs[5,i].HanZiKuangObject.transform;
-							go.GetComponent<HanZiElement>().SetParent();
-
-							HanZiKuangs[5,i].IsCount--;
-
-							if(HanZiKuangs[5,i].IsCount!=0){
-
-                                HanZiKuangCounts[HanZiKuangs[5, i].IsCount].gameObject.SetActive(true);
-						
-							}
-							
-
-							 //消除选定的可以组成新汉字的文字元素（各种趣味玩法消除对应的汉字元素）
-	                    	for (int m = 0; m < 6; m++) {                //消除下部分所有汉字元素。
-	                    
-	                        	DeleteHanZiElem(8,m);      
-	                    	}
-	                   		for (int n = StartHanZiKuangCloUp; n <= EndHanZiKuangCloUp; n++) {//消除上部分汉字元素
-	                    	
-		                   
-		                        DeleteHanZiElem(3, n);                  //添加消除音效
-							    DeleteHanZiElem(2, n);
-	                    									
-	                    	}
-						
-		                    //下落
-		                    HanZiElemFallInUp();
-							//上部分重新生成文字
-						    for (int j = 0; j < 6; j++) {
-								 StartCoroutine(CreatHanZiElemAndFallUp(j));
-							}
-
-							Invoke("CreateHanZiCount", 1.8f);     //随机生成汉字框count
-							
-							//生成下部分汉字元素
-						    StartCoroutine(CreatCompriseHanZi());
-
-
-
-							
-						}else{
-
-							IsHanZiDeleteUp=1;
-						}
-						
-
-					}
-					
-					if(IsHanZiDeleteUp==1){       //可以消除时
-						Vector3 scal = new Vector3(1.2f, 1.2f, 1f);                               
-	                    Transform trgo = (Transform)Instantiate(HanZiElement, new Vector2(/*HanZiKuangs[1, 1].HanZiKuangObject.transform.position.x*/ 6f, -16f/*HanZiKuangs[1, 1].HanZiKuangObject.transform.position.y - 0.16f*/), Quaternion.Euler(0f, 0f, 0f));
-
-	                    trgo.transform.localScale = scal;
-	                    GameObject go = trgo.gameObject;
-
-	                    go.GetComponent<HanZiElement>().m_HanZiElementstrc = HanZiStrcNew;               //把找到符合调价的汉字赋值给了汉字元素类的对应变量
-	                    go.GetComponent<HanZiElement>().CreateElement(new Vector2(0.5f, 0.5f));
-	                    
-
-	                    DaoHeng_EndPos = new Vector3(6f, -16f, 0);
-	                    //print("$$$$$$$$$$$$$$$$ DaoHeng_startPosUp " + DaoHeng_startPosUp);
-	                    Hua_xian_DaoHengUp.GetComponent<XuanZheXian>().HanZiHeChengDaoHeng(DaoHeng_startPosUp, DaoHeng_EndPos);
-
-	                    DaoHeng_EndPos = new Vector3(8.3f, -15.24f, 0);
-	                    DaoHeng_startPosDown = new Vector3(DaoHeng_startPosDown.x - 1.31f, DaoHeng_startPosDown.y -1f,0);
-	                    Hua_xian_DaoHengDown.GetComponent<XuanZheXian>().HanZiHeChengDaoHeng(DaoHeng_startPosDown, DaoHeng_EndPos);
-						
-						PlaySound_HanZi_HeCheng();                   //文字合成音效，后续可以加上一些趣味语音
-	                    
-
-	                    //消除选定的可以组成新汉字的文字元素（各种趣味玩法消除对应的汉字元素）
-	                    for (int i = 0; i < 6; i++) {                //消除下部分所有汉字元素。
-	                    
-	                        DeleteHanZiElem(8,i);      
-	                    }
-	                    for (int i = StartHanZiKuangCloUp; i <= EndHanZiKuangCloUp; i++) {//消除上部分汉字元素
-	                    	
-	                        DeleteHanZiElem(5, i);
-	                        DeleteHanZiElem(3, i);                  //添加消除音效
-						    DeleteHanZiElem(2, i);
-	                    									
-	                    }
-						
-	                    //下落
-	                    HanZiElemFallInUp();
-						//上部分重新生成文字
-					    for (int j = 0; j < 6; j++) {
-							 StartCoroutine(CreatHanZiElemAndFallUp(j));
-						}
-
-						Invoke("CreateHanZiCount", 1.8f);     //随机生成汉字count
-						
-						//生成下部分汉字元素
-					    StartCoroutine(CreatCompriseHanZi());
-
-	                   //间隔1秒后新生成的文字消除
-	                   Destroy(go, 2f);
-
-
-
-					}
+                    int NewEleCount = 0;
+                    for (int i = 0; i < 6; i++) {
+                        if (HanZiStrcNews[i].CompNum!=0)
+                        {
+                            NewEleCount++;
+                        }
                     
-                            
-               	}else{
-					//下述实现清楚操作
-					for (int i=0;i<9;i++){
-							
-						if(TempSelectHanZiKuangUp[i].hang!=0xff){
-	                        tempobject = HanZiKuangs[TempSelectHanZiKuangUp[i].hang, TempSelectHanZiKuangUp[i].lie].HanZiKuangObject;
-	                        tempobject.transform.localScale = OriginScal;
-	                        temppos = tempobject.transform.position;
-	                        temppos.z = 0;
-	                        tempobject.transform.position=temppos;
-						}
-						if(TempSelectHanZiKuangDown[i].hang!=0xff){
-	                        tempobject = HanZiKuangs[TempSelectHanZiKuangDown[i].hang, TempSelectHanZiKuangDown[i].lie].HanZiKuangObject;
-							//HanZiKuangs[TempSelectHanZiKuangDown[i].hang,TempSelectHanZiKuangDown[i].lie].HanZiKuangObject.transform.position.z=0;
+                    }
 
-	                        tempobject.transform.localScale = OriginScal;
-	                        temppos = tempobject.transform.position;
-	                        temppos.z = 0;
-	                        tempobject.transform.position = temppos;
-						}
+                    if (NewEleCount != 0)
+                    {
 
-					}
+                        //组成文字后也要清除选定
+                        for (int i = 0; i < 9; i++)
+                        {
+
+                            if (TempSelectHanZiKuangUp[i].hang != 0xff)
+                            {
+
+                                tempobject = HanZiKuangs[TempSelectHanZiKuangUp[i].hang, TempSelectHanZiKuangUp[i].lie].HanZiKuangObject;
+                                tempobject.transform.localScale = OriginScal;
+                                temppos = tempobject.transform.position;
+                                temppos.z = 0;
+                                tempobject.transform.position = temppos;
+
+
+
+                            }
+                            if (TempSelectHanZiKuangDown[i].hang != 0xff)
+                            {
+                                //HanZiKuangs[TempSelectHanZiKuangDown[i].hang,TempSelectHanZiKuangDown[i].lie].HanZiKuangObject.transform.position.z=0;
+                                tempobject = HanZiKuangs[TempSelectHanZiKuangDown[i].hang, TempSelectHanZiKuangDown[i].lie].HanZiKuangObject;
+                                tempobject.transform.localScale = OriginScal;
+                                temppos = tempobject.transform.position;
+                                temppos.z = 0;
+                                tempobject.transform.position = temppos;
+
+                            }
+
+                        }
+                        //选定的上下文字元素不能组成文字时也要进行清除。
+
+                        for (int m = 0; m < 9; m++)
+                        {
+                            TempSelectHanZiUp[m].FirstNum = 0;
+                            TempSelectHanZiUp[m].SecondNum = 0;
+                            TempSelectHanZiUp[m].CompNum = 0;
+                            TempSelectHanZiUp[m].image = null;
+                            TempSelectHanZiUp[m].CompCount = 0;
+
+                            TempSelectHanZiKuangUp[m].hang = 0xff;
+                            TempSelectHanZiKuangUp[m].lie = 0xff;
+                        }
+                        UpIsSelect = false;
+
+                        for (int m = 0; m < 9; m++)
+                        {
+                            TempSelectHanZiDown[m].FirstNum = 0;
+                            TempSelectHanZiDown[m].SecondNum = 0;
+                            TempSelectHanZiDown[m].CompNum = 0;
+                            TempSelectHanZiDown[m].image = null;
+                            TempSelectHanZiDown[m].CompCount = 0;
+
+                            TempSelectHanZiKuangDown[m].hang = 0xff;
+                            TempSelectHanZiKuangDown[m].lie = 0xff;
+
+                        }
+                        DownIsSelect = false;
+                        //上述实现对应的清除操作
+
+                        int IsHanZiDeleteUp = 0;
+
+                        for (int i = StartHanZiKuangCloUp; i <= EndHanZiKuangCloUp; i++)
+                        {  //汉字框有count的情况
+                            if (HanZiKuangs[5, i].IsCount != 0)
+                            {
+                                DeleteHanZiElem(5, i);
+								
+                                HanZiKuangCounts[HanZiKuangs[5, i].IsCount].gameObject.SetActive(false);
+
+                                Vector3 scal = new Vector3(1.2f, 1.2f, 1f);
+                                //在对应有count的汉字框中生成新的合成的汉字元素
+                                Transform trgo = (Transform)Instantiate(HanZiElement, new Vector2(HanZiKuangs[5, i].HanZiKuangObject.transform.position.x, HanZiKuangs[5, i].HanZiKuangObject.transform.position.y), Quaternion.Euler(0f, 0f, 0f));
+
+                                trgo.transform.localScale = scal;
+                                GameObject go = trgo.gameObject;
+
+                                go.GetComponent<HanZiElement>().m_HanZiElementstrc = HanZiStrcNews[0];          //把找到符合调价的汉字赋值给了汉字元素类的对应变量               。 目前对于有count的情况先只显示第一个合成获得的汉字，后面再用什么方案来优化。
+                                go.GetComponent<HanZiElement>().CreateElement(new Vector2(0.5f, 0.5f));
+                                go.GetComponent<HanZiElement>().m_parent = HanZiKuangs[5, i].HanZiKuangObject.transform;
+                                go.GetComponent<HanZiElement>().SetParent();
+
+                                HanZiKuangs[5, i].IsCount--;
+
+                                if (HanZiKuangs[5, i].IsCount != 0)
+                                {
+
+                                    HanZiKuangCounts[HanZiKuangs[5, i].IsCount].gameObject.SetActive(true);
+
+                                }
+
+
+                                //消除选定的可以组成新汉字的文字元素（各种趣味玩法消除对应的汉字元素）
+                                for (int m = 0; m < 6; m++)
+                                {                //消除下部分所有汉字元素。
+
+                                    DeleteHanZiElem(8, m);
+                                }
+                                for (int n = StartHanZiKuangCloUp; n <= EndHanZiKuangCloUp; n++)
+                                {//消除上部分汉字元素
+
+
+                                   // DeleteHanZiElem(3, n);                  //添加消除音效
+                                  //  DeleteHanZiElem(2, n);
+
+                                }
+
+                                //下落
+                                HanZiElemFallInUp();
+                                //上部分重新生成文字
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    StartCoroutine(CreatHanZiElemAndFallUp(j));
+                                }
+
+                                Invoke("CreateHanZiCount", 1.8f);     //随机生成汉字框count
+
+                                //生成下部分汉字元素
+                                StartCoroutine(CreatCompriseHanZi());
+
+
+
+
+                            }
+                            else
+                            {
+
+                                IsHanZiDeleteUp = 1;
+                            }
+
+
+                        }
+
+                        if (IsHanZiDeleteUp == 1)
+                        {       //上部分选定的汉字框没有count或则count已经减到0，可以直接删除该框中的汉字并且在显示区域显示新生成的汉字
+
+                            GameObject[] gos = new GameObject[6];
+                            Vector3 scal = new Vector3(1.2f, 1.2f, 1f);
+                            for (int i = 0; i <NewEleCount; i++) {  //在显示区域生成所有能够合成的汉字
+                             
+                                
+                                Transform trgo = (Transform)Instantiate(HanZiElement, new Vector2(/*HanZiKuangs[1, 1].HanZiKuangObject.transform.position.x*/ 7.21f - 1.21f*NewEleCount + 2.42f*i, -16f/*HanZiKuangs[1, 1].HanZiKuangObject.transform.position.y - 0.16f*/), Quaternion.Euler(0f, 0f, 0f));
+
+                                trgo.transform.localScale = scal;
+                                gos[i] = trgo.gameObject;
+
+                                gos[i].GetComponent<HanZiElement>().m_HanZiElementstrc = HanZiStrcNews[i];               //把找到符合调价的汉字赋值给了汉字元素类的对应变量
+                                gos[i].GetComponent<HanZiElement>().CreateElement(new Vector2(0.5f, 0.5f));
+                                
+                                                  
+                            }
+
+                            DaoHeng_EndPos = new Vector3(6f, -16f, 0);
+                            //print("$$$$$$$$$$$$$$$$ DaoHeng_startPosUp " + DaoHeng_startPosUp);
+                            Hua_xian_DaoHengUp.GetComponent<XuanZheXian>().HanZiHeChengDaoHeng(DaoHeng_startPosUp, DaoHeng_EndPos);
+
+                            DaoHeng_EndPos = new Vector3(8.3f, -15.24f, 0);
+                            DaoHeng_startPosDown = new Vector3(DaoHeng_startPosDown.x - 1.31f, DaoHeng_startPosDown.y - 1f, 0);
+                            Hua_xian_DaoHengDown.GetComponent<XuanZheXian>().HanZiHeChengDaoHeng(DaoHeng_startPosDown, DaoHeng_EndPos);
+
+
+                            PlaySound_HanZi_HeCheng();                   //文字合成音效，后续可以加上一些趣味语音
+
+
+                            //消除选定的可以组成新汉字的文字元素（各种趣味玩法消除对应的汉字元素）
+                            for (int i = 0; i < 6; i++)
+                            {                //消除下部分所有汉字元素。
+
+                                DeleteHanZiElem(8, i);
+                            }
+                            for (int i = StartHanZiKuangCloUp; i <= EndHanZiKuangCloUp; i++)
+                            {//消除上部分汉字元素
+
+                                DeleteHanZiElem(5, i);
+                              //  DeleteHanZiElem(3, i);                  //添加消除音效
+                               // DeleteHanZiElem(2, i);
+
+                            }
+
+                            //下落
+                            HanZiElemFallInUp();
+
+							//收集金笔
+							Invoke("DeleteJinBiElement", 1.8f);    //由于这个是新启的一个线程，与下面不一致，所以金笔删除后最上面没有立即生成新的元素，只在下一次生成
 					
-					//选定的上下文字元素不能组成文字时也要进行清除。
-					for (int m = 0; m < 9; m++)
-				    {	
-						TempSelectHanZiUp[m].FirstNum = 0;
-						TempSelectHanZiUp[m].SecondNum = 0;
-						TempSelectHanZiUp[m].CompNum = 0;
-						TempSelectHanZiUp[m].image = null;
-						TempSelectHanZiUp[m].CompCount = 0;
+                            //上部分重新生成文字
+                            for (int j = 0; j < 6; j++)
+                            {
+                                StartCoroutine(CreatHanZiElemAndFallUp(j));
+                            }
+					
+                            Invoke("CreateHanZiCount", 1.8f);     //随机生成汉字count
 
-						TempSelectHanZiKuangUp[m].hang=0xff;
-						TempSelectHanZiKuangUp[m].lie=0xff;
-					}
-					UpIsSelect=false;
-					for (int m = 0; m < 9; m++)
-					{
-						TempSelectHanZiDown[m].FirstNum = 0;
-						TempSelectHanZiDown[m].SecondNum = 0;
-						TempSelectHanZiDown[m].CompNum = 0;
-						TempSelectHanZiDown[m].image = null;
-						TempSelectHanZiDown[m].CompCount = 0;
+                            //生成下部分汉字元素
+                            StartCoroutine(CreatCompriseHanZi());
 
-						TempSelectHanZiKuangDown[m].hang=0xff;
-						TempSelectHanZiKuangDown[m].lie=0xff;
-						   
-					}
-					DownIsSelect=false;
-					}              
+							//看一下第6行是否有金笔，如果是金笔则把该金笔元素删除，然后上面的元素再下降,直到都不是金笔。
+						
+							
+
+								
+                            //间隔1秒后新生成的文字消除
+                            if(NewEleCount>1){
+								return;
+							}
+                            for (int i = 0; i < 6; i++) {
+                                Destroy(gos[i], 2f);
+                            
+                            }                              
+                        }
+
+
+                    }else {
+                        //下述实现清楚操作
+                        for (int i = 0; i < 9; i++)
+                        {
+
+                            if (TempSelectHanZiKuangUp[i].hang != 0xff)
+                            {
+                                tempobject = HanZiKuangs[TempSelectHanZiKuangUp[i].hang, TempSelectHanZiKuangUp[i].lie].HanZiKuangObject;
+                                tempobject.transform.localScale = OriginScal;
+                                temppos = tempobject.transform.position;
+                                temppos.z = 0;
+                                tempobject.transform.position = temppos;
+                            }
+                            if (TempSelectHanZiKuangDown[i].hang != 0xff)
+                            {
+                                tempobject = HanZiKuangs[TempSelectHanZiKuangDown[i].hang, TempSelectHanZiKuangDown[i].lie].HanZiKuangObject;
+                                //HanZiKuangs[TempSelectHanZiKuangDown[i].hang,TempSelectHanZiKuangDown[i].lie].HanZiKuangObject.transform.position.z=0;
+
+                                tempobject.transform.localScale = OriginScal;
+                                temppos = tempobject.transform.position;
+                                temppos.z = 0;
+                                tempobject.transform.position = temppos;
+                            }
+
+                        }
+
+                        //选定的上下文字元素不能组成文字时也要进行清除。
+                        for (int m = 0; m < 9; m++)
+                        {
+                            TempSelectHanZiUp[m].FirstNum = 0;
+                            TempSelectHanZiUp[m].SecondNum = 0;
+                            TempSelectHanZiUp[m].CompNum = 0;
+                            TempSelectHanZiUp[m].image = null;
+                            TempSelectHanZiUp[m].CompCount = 0;
+
+                            TempSelectHanZiKuangUp[m].hang = 0xff;
+                            TempSelectHanZiKuangUp[m].lie = 0xff;
+                        }
+                        UpIsSelect = false;
+                        for (int m = 0; m < 9; m++)
+                        {
+                            TempSelectHanZiDown[m].FirstNum = 0;
+                            TempSelectHanZiDown[m].SecondNum = 0;
+                            TempSelectHanZiDown[m].CompNum = 0;
+                            TempSelectHanZiDown[m].image = null;
+                            TempSelectHanZiDown[m].CompCount = 0;
+
+                            TempSelectHanZiKuangDown[m].hang = 0xff;
+                            TempSelectHanZiKuangDown[m].lie = 0xff;
+
+                        }
+                        DownIsSelect = false;
+                    }              
                 }       
             }
         }					
 	}
 
+   public void DeleteJinBiElement(){
+		if((HanZiKuangs[5, 0].HanZiKuangObject.transform.GetChild(0).name=="JinBi") || (HanZiKuangs[5, 1].HanZiKuangObject.transform.GetChild(0).name=="JinBi") ||
+			 (HanZiKuangs[5, 2].HanZiKuangObject.transform.GetChild(0).name=="JinBi") || (HanZiKuangs[5, 3].HanZiKuangObject.transform.GetChild(0).name=="JinBi") ||
+			 (HanZiKuangs[5, 4].HanZiKuangObject.transform.GetChild(0).name=="JinBi") || (HanZiKuangs[5, 5].HanZiKuangObject.transform.GetChild(0).name=="JinBi"))
+		 {
+		 	//yield return new WaitForSeconds(1.8f);
+			 print("cccccccccc02  ");
+			 for(int lie=0;lie<6;lie++){
+				 if (HanZiKuangs[5, lie].HanZiKuangObject.transform.GetChild(0).name=="JinBi")
+				 {	
+					 DeleteHanZiElem(5, lie);
+					 print("cccccccccc03 lie= "+lie);
+				 }
+			 }
+			 HanZiElemFallInUp();
+			 Invoke("DeleteJinBiElement", 1.8f);
+			 
+			/* for(int j=0;j<6;j++){
+				StartCoroutine(CreatHanZiElemAndFallUp(j));
+			 }*/
+			  
+		 }
+		
+		 return;
+   }
+
+
+
+
     public void HanZiElemFallInUp() {
         int EmptyPos = 0;
-        for (int x= 0; x < 6; x++) {   //文字框的列
+        for (int lie= 0; lie< 6; lie++) {   //文字框的列
             int IsFirstEmpty = 0;
 			int hang=0;
             for (int y = 0; y <=5; y++) { //文字框的行
             	hang=5-y;
-            		
-                if (HanZiKuangs[hang, x].IsUsed == 0 && IsFirstEmpty == 0)
+                if (HanZiKuangs[hang, lie].IsUsed == 0 && IsFirstEmpty == 0)
                 {
-                    
                     EmptyPos = hang;               //找到第一个为空的位置
                     IsFirstEmpty = 1;
-                    //print("******************* 45 EmptyPos=" + EmptyPos);
-
                 }
-                if (HanZiKuangs[hang, x].IsUsed == 1 && IsFirstEmpty==1)
+                if (HanZiKuangs[hang, lie].IsUsed == 1 && IsFirstEmpty==1)
                 {
-
-
-                    GameObject go = HanZiKuangs[hang, x].HanZiKuangObject.transform.GetChild(0).gameObject;
+					
+					
+                    GameObject go = HanZiKuangs[hang, lie].HanZiKuangObject.transform.GetChild(0).gameObject;
                    // print("******************* 50 go.transform.position=" + go.transform.position);
                     //HanZiKuangs[y, x].HanZiKuangObject.transform.parent=null;
                    // print("******************* 51 go.transform.position=" + go.transform.position);
     //                print("******************* 46 HanZiKuangs[" + hang+","+x + "]" );
                     if (go != null) {
-                        int FallowNum=0;
-                        HanZiKuangs[hang, x].IsUsed = 0;           //遗漏了这个条件，弄了挺久。
-                        //print("******************* 47 HanZiKuangs[" + EmptyPos + "," + x + "]");
-                        go.GetComponent<HanZiElement>().m_parent = HanZiKuangs[EmptyPos, x].HanZiKuangObject.transform;   //把汉字框作为父类赋值给相应的汉字元素   //这个设置父类应该有时序问题，低概率会出现子类文字元素相对父类文字框的坐标不为0，,这也可能与子类相对父类坐标有关。
-                        
-                        //print("******************* 54 go.transform.position=" + go.transform.position);
-                        //Vector3 StartPosition = new Vector3(HanZiKuangs[y, x].HanZiKuangObject.transform.position.x, HanZiKuangs[y, x].HanZiKuangObject.transform.position.y - 2.4f, -1);  //把文字元素放置到文字框上
-                        ElementVerticalFall(x, hang, ref FallowNum);   //获得当前文字元素需要下落的框数。有问题。
-   //                     print("******************* 54 FallowNum=" + FallowNum);
+						int FallowNum=0;
+                        HanZiKuangs[hang, lie].IsUsed = 0;           //遗漏了这个条件，弄了挺久。
+                        go.GetComponent<HanZiElement>().m_parent = HanZiKuangs[EmptyPos, lie].HanZiKuangObject.transform;   //把汉字框作为父类赋值给相应的汉字元素   //这个设置父类应该有时序问题，低概率会出现子类文字元素相对父类文字框的坐标不为0，,这也可能与子类相对父类坐标有关。
+                        ElementVerticalFall(lie, hang, ref FallowNum);   //获得当前文字元素需要下落的框数。这个一定要放在上面IsUsed置0之后
+                        FallowNum=FallowNum-1;
                         Vector3 StartPosition = new Vector3(0, 1.6f * (FallowNum) , -1);         //这里的坐标采用的是父类的相对坐标才能按正确的方式下落。后面优化时把动画修改一下，采用自由落体的方式让运动能够更有动感
-                        //print("******************* 52 StartPosition=" + StartPosition);
-                        //Vector3 EndPosition = new Vector3(HanZiKuangs[EmptyPos, x].HanZiKuangObject.transform.position.x, HanZiKuangs[EmptyPos, x].HanZiKuangObject.transform.position.y, -1);
                         Vector3 EndPosition = new Vector3(0, 0, -1);
-                        //print("******************* 53 EndPosition=" + EndPosition);
-                        //go.GetComponent<HanZiElement>().Move(StartPosition, EndPosition);  //传两个汉字框的函数进去即可,该方法有效，后面可以把动画特效做好点
 
-                        go.GetComponent<HanZiElement>().Move(StartPosition, EndPosition);
-                        //StartCoroutine(go.GetComponent<HanZiElement>().Move(StartPosition, EndPosition));  
-                        HanZiKuangs[EmptyPos, x].IsUsed = 1;           
+                        go.GetComponent<HanZiElement>().Move(StartPosition, EndPosition);  //传两个汉字框的函数进去即可,该方法有效，后面可以把动画特效做好点
+                        HanZiKuangs[EmptyPos, lie].IsUsed = 1;           
                   
                         EmptyPos--;
                     
                     }
-                    
-
                 }
             }
         }
@@ -1121,8 +1358,9 @@ public  class HanZiHeDan : MonoBehaviour {
 	//void Move
 
 	//通过传入两个元素的compnum查找list中有组成文字的元素，并返回该元素
-	public int IsCompriseHanZi(int a,int b,int c,int d,int e,int selectcount,ref Han_Zi_Ele_Struct obj) {  //先按是有三个元素来比较
-
+	public int IsCompriseHanZi(int a,int b,int c,int d,int e,int selectcount,ref Han_Zi_Ele_Struct[] Objs) {  //先按是有三个元素来比较
+        
+        int ArrIndex = 0;  //
     	foreach(Han_Zi_Ele_Struct hanzi in HanZiElementstrcs)
 		{   
 			/*if((a!=0xffff)&&(a==hanzi.FirstNum||a==hanzi.SecondNum||a==hanzi.ThirdNum||a==hanzi.ForthNum||a==hanzi.FiveNum))
@@ -1139,21 +1377,23 @@ public  class HanZiHeDan : MonoBehaviour {
             if (selectcount == 2) {
                 if (a == hanzi.FirstNum)
                 {
-                    if (b == hanzi.SecondNum)
+                    if ((b == hanzi.SecondNum) && (hanzi.ThirdNum==0))  //由于汉字表的元素结构体设计是从左往右逐步存放非0值，所以只要第三个为0，后面都是0
                     {
-                       obj = hanzi;
-                        return hanzi.CompNum;                   //********这个应该不能直接return，应该继续查找，后面优化
+                        Objs[ArrIndex] = hanzi;
+                        ArrIndex++;
+                       // return hanzi.CompNum;                   //********这个应该不能直接return，应该继续查找，后面优化
                     }
-                }
-                if (a == hanzi.SecondNum)
+                }    //必须是两个不同的分支，不然两个分支都执行会出现bug
+				else if (a == hanzi.SecondNum)
                 {
-                    if (b == hanzi.FirstNum)
+                    if ((b == hanzi.FirstNum)&&(hanzi.ThirdNum==0))
                     {
-                       obj = hanzi;
-                        return 1;
+                        Objs[ArrIndex] = hanzi;
+                        ArrIndex++;
                     }
-                }
-            
+                	
+
+				}
             
             }
             if (selectcount == 3) {
@@ -1161,70 +1401,69 @@ public  class HanZiHeDan : MonoBehaviour {
                 {
                     if (b == hanzi.SecondNum)
                     {
-                        if (c == hanzi.ThirdNum) {
-                            obj = hanzi;
-                            return 1;
+                        if ((c == hanzi.ThirdNum)&&(hanzi.ForthNum==0)) {
+                            Objs[ArrIndex] = hanzi;
+                            ArrIndex++;
                         
                         }
 
                     }
-                    if (b == hanzi.ThirdNum) {
-                        if (c == hanzi.SecondNum) {
-                            obj = hanzi;
-                            //complNum = hanzi.CompNum;
-                            return 1;
+                    else if (b == hanzi.ThirdNum) {
+                        if ((c == hanzi.SecondNum)&&(hanzi.ForthNum==0)) {
+                            Objs[ArrIndex] = hanzi;
+         
+                            ArrIndex++;
                         }
                     
                     }
 
                 }
-
-                if (a == hanzi.SecondNum)
+				else if (a == hanzi.SecondNum)
                 {
                     if (b == hanzi.FirstNum)
                     {
-                        if (c == hanzi.ThirdNum)
+                        if ((c == hanzi.ThirdNum)&&(hanzi.ForthNum==0))
                         {
-                            obj = hanzi;
+                            Objs[ArrIndex] = hanzi;
                            //complNum = hanzi.CompNum;
-                            return 1;
+                            ArrIndex++;
 
                         }
 
                     }
-                    if (b == hanzi.ThirdNum)
+                    else if (b == hanzi.ThirdNum)
                     {
-                        if (c == hanzi.FirstNum)
+                        if ((c == hanzi.FirstNum)&&(hanzi.ForthNum==0))
                         {
-                            obj = hanzi;
+                            Objs[ArrIndex] = hanzi;
                             //complNum = hanzi.CompNum;
-                            return 1;
+                            ArrIndex++;
                         }
 
                     }
 
                 }
 
-                if (a == hanzi.ThirdNum)
+                else if (a == hanzi.ThirdNum)
                 {
                     if (b == hanzi.FirstNum)
                     {
-                        if (c == hanzi.SecondNum)
+                        if ((c == hanzi.SecondNum)&&(hanzi.ForthNum==0))
                         {
-                            obj = hanzi;
+                            Objs[ArrIndex] = hanzi;
                            //complNum = hanzi.CompNum;
-                            return 1;
+                            ArrIndex++;
 
                         }
 
                     }
-                    if (b == hanzi.SecondNum)
+                    if ((b == hanzi.SecondNum)&&(hanzi.ForthNum==0))
                     {
                         if (c == hanzi.FirstNum)
                         {
-                            obj = hanzi;
+                            Objs[ArrIndex] = hanzi;
                            //complNum = hanzi.CompNum;
-                            return 1;
+                            ArrIndex++;
                         }
 
                     }
@@ -1234,6 +1473,11 @@ public  class HanZiHeDan : MonoBehaviour {
             }
             
 		}
+        if (ArrIndex!=0)    //找到合成的文字
+        {
+
+            return 1;    
+        }
 		return 0;
     }
     public static void GetCompariseHanZiElem(Han_Zi_Ele_Struct[] InHanZiStrc, ref int[] CompriseNum){//文字生成函数
@@ -1370,25 +1614,24 @@ public  class HanZiHeDan : MonoBehaviour {
     }
 
     //输入涉及到的列
-    void ElementVerticalFall(int Inclo,int CurrentRowNum,/*ref GameObject hanzi/*也可以不用实参**/ref int OutRow/*ref GameObject hanzikuang*/)  
+    void ElementVerticalFall(int lie,int CurrentHang,ref int OutRow)  //		从当前指定行的下一个开始算，空的加1，直到不为空
     {
         int fallnum = 0;
-        int row;
-        //for (int clo = colstart; clo<= colend; clo++) {
-            for (row = CurrentRowNum+1; row < 6; row++) {     //当前的循环可以用while简单完成
-                if (HanZiKuangs[row, Inclo].IsUsed == 0)
-                {
-                    fallnum++;
+        int HangIndex;
+   
+        for (HangIndex = CurrentHang; HangIndex <6; HangIndex++) {     //当前的循环可以用while简单完成
+            if (HanZiKuangs[HangIndex, lie].IsUsed == 0)
+            {
+                fallnum++;
 
-                }
-                else {
-                    break;
-                }
-                
             }
-            OutRow = fallnum;  //数组元素是从0开始的，所以
-       //}
-    
+            else {
+                break;
+            }
+            
+        }
+        OutRow = fallnum;  //数组元素是从0开始的，所以
+
     }
 
 
@@ -1410,13 +1653,13 @@ public  class HanZiHeDan : MonoBehaviour {
 			}
 
 		}  
-		print("AAAAAAAAAAA 200 CreateHanZiCount" );
+		//print("AAAAAAAAAAA 200 CreateHanZiCount" );
 
 		//需要添加有过count的汉字框是否被消除
-		if(IsHaveCount==0 && CountIsNotDelete<=2){         //这个可以后面优化看可以存在几个count文字框合适。
-			for(int i=0;i<3;i++){   //随机最多指定3次汉字元素，如果是多次合成就赋值，否则不用。
+		if(IsHaveCount==0 && CountIsNotDelete<2){         //这个可以后面优化看可以存在几个count文字框合适。
+			for(int i=0;i<2;i++){   //随机最多指定3次汉字元素，如果是多次合成就赋值，否则不用。
 				int RandTempNum=UnityEngine.Random.Range(0, 5);
-				print("AAAAAAAAAAA 201 m_HanZiElementstrc.CompNum" +HanZiKuangs[5,RandTempNum].HanZiKuangObject.transform.GetChild(0).GetComponent<HanZiElement>().m_HanZiElementstrc.CompNum);
+				//print("AAAAAAAAAAA 201 m_HanZiElementstrc.CompNum" +HanZiKuangs[5,RandTempNum].HanZiKuangObject.transform.GetChild(0).GetComponent<HanZiElement>().m_HanZiElementstrc.CompNum);
 				for(int j=0;j<Coprise2CountNum.GetLength(0);j++){
 					if(Coprise2CountNum[j]==HanZiKuangs[5,RandTempNum].HanZiKuangObject.transform.GetChild(0).GetComponent<HanZiElement>().m_HanZiElementstrc.CompNum)
 					{
@@ -1432,7 +1675,12 @@ public  class HanZiHeDan : MonoBehaviour {
                         CountObjectPos.y = CountObjectPos.y - 0.74f;
                         CountObjectPos.z = -1;
                         CountObjectTemp.transform.position = CountObjectPos;
-						 print("AAAAAAAAAAA 202 HanZiKuangs[5," +RandTempNum+"]="+ Coprise2CountNum[j]);
+						
+						HanZiKuangs[5, RandTempNum].HanZiCountObjtct=CountObjectTemp;
+						
+						//HanZiKuangCounts[HanZiKuangs[5, RandTempNum].IsCount].Hang=5;
+						//HanZiKuangCounts[HanZiKuangs[5, RandTempNum].IsCount].Lie=RandTempNum;
+						// print("AAAAAAAAAAA 202 HanZiKuangs[5," +RandTempNum+"]="+ Coprise2CountNum[j]);
 						break;
 					}
 

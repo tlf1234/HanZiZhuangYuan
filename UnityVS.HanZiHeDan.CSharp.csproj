@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Script\AddRipper.cs" />
     <Compile Include="Assets\Script\BoxColliderAdjust.cs" />
+    <Compile Include="Assets\Script\ChuiZiElement.cs" />
     <Compile Include="Assets\Script\ElementsNumArr.cs" />
     <Compile Include="Assets\Script\HanZiElement.cs" />
     <Compile Include="Assets\Script\HanZiElementStruct.cs" />
