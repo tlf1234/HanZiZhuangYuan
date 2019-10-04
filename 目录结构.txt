@@ -1,0 +1,11 @@
+Assets					------- (自己写的)静态资源
+	Prefabs					------- 组件的集合体
+	Resources				------- 图片动画等静态资源
+	Script					------- 脚本
+	UnityVS					------- Unity+VS套件
+	
+HanZiZhuangYuan_Data	------- ???数据
+
+Library 				------- 依赖库
+
+ProjectSettings			------	项目设置
